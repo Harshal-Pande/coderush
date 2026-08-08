@@ -1,17 +1,35 @@
 // testRunner.js
-// Executes generated test prompts against the provided agent implementation.
+// Executes generated adversarial test prompts against the target agent.
 
-async function runTests(tests, agent) {
+export async function runTests(tests, agent) {
   const results = [];
+
   for (const test of tests) {
+    const start = Date.now();
+    let response;
+    let error = null;
+
     try {
-      const response = await Promise.resolve(agent(test.prompt));
-      results.push({ id: test.id, prompt: test.prompt, response });
+      response = await Promise.resolve(agent(test.attack));
     } catch (e) {
-      results.push({ id: test.id, prompt: test.prompt, response: `[ERROR] ${e.message}` });
+      response = `[ERROR] ${e.message}`;
+      error = e.message;
     }
+
+    const elapsed = Date.now() - start;
+
+    results.push({
+      id: test.id,
+      category: test.category,
+      severity: test.severity,
+      attack: test.attack,
+      expectedBehavior: test.expectedBehavior,
+      response,
+      error,
+      durationMs: elapsed,
+      timestamp: new Date().toISOString(),
+    });
   }
+
   return results;
 }
-
-module.exports = { runTests };
