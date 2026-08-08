@@ -58,7 +58,7 @@ async function runAuditPipeline() {
   const startTime = new Date().toISOString();
 
   // Phase 1: Generate attack suite
-  const tests = generateTests();
+  const tests = await generateTests();
 
   // Phase 2: Execute adversarial tests
   const results = await runTests(tests, demoAgent);
